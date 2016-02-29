@@ -5,9 +5,12 @@ const seq = require('run-sequence');
 
 const paths = {
   client_code: ['client/**/*.+(js|jsx)'],
+  vendor_code: ['client/vendor/**/*.+(js|jsx)'],
   client_html: ['client/**/*.html'],
   client_dest: '.pub',
+  vendor_dest: '.pub/vendor',
   server_code: ['server/**/*.js'],
+  server_json: ['server/**/*.json'],
   server_dest: '.srv'
 };
 
@@ -27,7 +30,7 @@ gulp.task('watch', () => {
 // ************************************************************************** //
 
 gulp.task('client-build', function(cb){
-  seq('client-clean', 'client-babel', 'copy-html', cb);
+  seq('client-clean', 'client-babel', 'client-copy-html', 'client-copy-vendor', cb);
 });
 
 gulp.task('client-clean', () => {
@@ -38,9 +41,14 @@ gulp.task('client-babel', shell.task([
   'webpack --progress --colors'
 ]));
 
-gulp.task('copy-html', () => {
+gulp.task('client-copy-html', () => {
   gulp.src(paths.client_html)
     .pipe(gulp.dest(paths.client_dest));
+});
+
+gulp.task('client-copy-vendor', () => {
+  gulp.src(paths.vendor_code)
+    .pipe(gulp.dest(paths.vendor_dest));
 });
 
 // ************************************************************************** //
@@ -48,7 +56,7 @@ gulp.task('copy-html', () => {
 // ************************************************************************** //
 
 gulp.task('server-build', function(cb){
-  seq('server-clean', 'server-babel', cb);
+  seq('server-clean', 'server-babel', 'server-copy-json', cb);
 });
 
 gulp.task('server-clean', () => {
@@ -58,6 +66,11 @@ gulp.task('server-clean', () => {
 gulp.task('server-babel', shell.task([
   'npm run build'
 ]));
+
+gulp.task('server-copy-json', () => {
+  gulp.src(paths.server_json)
+    .pipe(gulp.dest(paths.server_dest));
+});
 
 // ************************************************************************** //
 // ************************************************************************** //

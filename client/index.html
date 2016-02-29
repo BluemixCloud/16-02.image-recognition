@@ -9,16 +9,29 @@
   </head>
   <body ng-controller="MainCtrl">
     <div class="container">
+
       <div class="row">
         <div class="col-xs-12">
           <h1>Angular + Bootstrap Template</h1>
         </div>
       </div>
+
+      <div class="row">
+        <div class="col-xs-12">
+          <div id="my_camera" style="width:320px; height:240px;"></div>
+          <div id="my_result"></div>
+          <button ng-click="on()">On</button>
+          <button ng-click="take()">Click</button>
+          <button ng-click="upload()">Upload</button>
+        </div>
+      </div>
+      
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular.min.js"></script>
+    <script src="/vendor/webcam.js"></script>
     <script src="/bundle.js"></script>
   </body>
 </html>
