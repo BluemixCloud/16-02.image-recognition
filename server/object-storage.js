@@ -1,131 +1,87 @@
 import Promise from 'bluebird';
 import Request from 'request';
-import credentials from './credentials.json';
 
-// -------------------------------------------------------------------------- //
-// -------------------------------------------------------------------------- //
-// -------------------------------------------------------------------------- //
+const authUrl = 'https://identity.open.softlayer.com/v3/auth/tokens';
 
-exports.getToken = getToken;
-exports.list = list;
-exports.create = create;
-exports.read = read;
-exports.upload = upload;
+// Access Points
+// https://dal.objectstorage.open.softlayer.com
+// https://lon.objectstorage.open.softlayer.com
 
-// -------------------------------------------------------------------------- //
-// -------------------------------------------------------------------------- //
-// -------------------------------------------------------------------------- //
-
-function getToken(uid, pwd, pid){
-  return new Promise((resolve, reject) => {
-
-    credentials.auth.identity.password.user.id = uid;
-    credentials.auth.identity.password.user.password = pwd;
-    credentials.auth.scope.project.id = pid;
-    const url = 'https://identity.open.softlayer.com/v3/auth/tokens';
-    const o = {url, method: 'post', body: credentials, json: true};
-
-    Request(o, (err, res, body) => {
-      let token = res.headers['x-subject-token'];
-      let endpoint;
-
-      body.token.catalog.forEach(c => {
-        if(c.type === 'object-store'){
-          c.endpoints.forEach(e => {
-            if(e.region === 'dallas' && e.interface === 'public'){
-              endpoint = e.url;
-            }
-          });
-        }
+class ObjectStorage {
+  constructor(credentialsFile, userId, password, projectId, accessPoint){
+    this.credentials = require(credentialsFile);
+    this.userId = userId;
+    this.password = password;
+    this.projectId = projectId;
+    this.endpoint = `${accessPoint}/v1/AUTH_${projectId}`;
+    this.token = null;
+  }
+  create(container){
+    const url = `${this.endpoint}/${container}`;
+    const method = 'put';
+    const headers = {'x-auth-token': this.token};
+    return this.query({url, method, headers, json: true});
+  }
+  list(container){
+    const url = `${this.endpoint}/${container}`;
+    const method = 'get';
+    const headers = {'x-auth-token': this.token};
+    return this.query({url, method, headers, json: true});
+  }
+  unlock(container){
+    const url = `${this.endpoint}/${container}`;
+    const method = 'post';
+    const headers = {'x-auth-token': this.token, 'x-container-read': '.r:*, .rlistings'};
+    return this.query({url, method, headers, json: true});
+  }
+  upload(container, filename, {mimetype, buffer, size}){
+    const url = `${this.endpoint}/${container}/${filename}`;
+    const method = 'put';
+    const headers = {'x-auth-token': this.token, 'content_type': mimetype, 'content-length': size};
+    return this.query({url, method, headers, body: buffer});
+  }
+  query(options){
+    return R(options)
+    .catch(AuthenticationError, e => {
+      this.credentials.auth.identity.password.user.id = this.userId;
+      this.credentials.auth.identity.password.user.password = this.password;
+      this.credentials.auth.scope.project.id = this.projectId;
+      const authOptions = {url: authUrl, method: 'post', body: this.credentials, json: true};
+      return R(authOptions)
+      .then(({response, body}) => {
+        this.token = options.headers['x-auth-token'] = response.headers['x-subject-token'];
+        return R(options);
       });
-
-      if(err)
-        reject(err);
-      else
-        resolve({token, endpoint});
     });
-  });
+  }
 }
 
 // -------------------------------------------------------------------------- //
-// -------------------------------------------------------------------------- //
+
+module.exports = ObjectStorage;
+
 // -------------------------------------------------------------------------- //
 
-function list(container, {endpoint, token}){
+function R(options){
   return new Promise((resolve, reject) => {
-
-    const url = endpoint + '/' + container;
-    const o = {url, method: 'get', json:true};
-
-    Request(o, (err, res, body) => {
-      if(err)
-        reject(err);
-      else
-        resolve(body);
+    Request(options, (err, response, body) => {
+      if(err){
+        reject({err, response});
+      }else if(response.statusCode === 401){
+        reject(new AuthenticationError());
+      }else{
+        resolve({response, body});
+      }
     });
   });
 }
 
 // -------------------------------------------------------------------------- //
-// -------------------------------------------------------------------------- //
-// -------------------------------------------------------------------------- //
 
-function create(container, {endpoint, token}){
-  return new Promise((resolve, reject) => {
-
-    const url = endpoint + '/' + container;
-    const headers = {'x-auth-token': token};
-    const o = {url, method: 'put', headers, json:true};
-
-    Request(o, (err, res, body) => {
-      if(err)
-        reject(err);
-      else
-        resolve(body);
-    });
-  });
+class AuthenticationError extends Error{
+  constructor(message, fileName, lineNumber){
+    super(message, fileName, lineNumber);
+  }
 }
 
-// -------------------------------------------------------------------------- //
-// -------------------------------------------------------------------------- //
-// -------------------------------------------------------------------------- //
-
-function read(container, {endpoint, token}){
-  return new Promise((resolve, reject) => {
-
-    const url = endpoint + '/' + container;
-    const headers = {'x-auth-token': token, 'x-container-read': '.r:*, .rlistings'};
-    const o = {url, method: 'post', headers, json:true};
-
-    Request(o, (err, res, body) => {
-      if(err)
-        reject(err);
-      else
-        resolve(body);
-    });
-  });
-}
-
-// -------------------------------------------------------------------------- //
-// -------------------------------------------------------------------------- //
-// -------------------------------------------------------------------------- //
-
-function upload(container, filename, {mimetype, buffer, size}, {endpoint, token}){
-  return new Promise((resolve, reject) => {
-
-    const url = endpoint + '/' + container + '/' + filename;
-    const headers = {'x-auth-token': token, 'content_type': mimetype, 'content-length': size};
-    const o = {url, method: 'put', headers, body: buffer};
-
-    Request(o, (err, res, body) => {
-      if(err)
-        reject(err);
-      else
-        resolve(body);
-    });
-  });
-}
-
-// -------------------------------------------------------------------------- //
-// -------------------------------------------------------------------------- //
 // -------------------------------------------------------------------------- //
