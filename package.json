@@ -9,6 +9,7 @@
   "license": "MIT",
   "dependencies": {
     "bluebird": "^3.3.3",
+    "bluemix-object-storage": "^1.0.1",
     "body-parser": "^1.15.0",
     "express": "^4.13.4",
     "morgan": "^1.7.0",
