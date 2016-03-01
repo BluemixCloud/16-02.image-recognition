@@ -6,6 +6,16 @@ import credentials from './credentials.json';
 // -------------------------------------------------------------------------- //
 // -------------------------------------------------------------------------- //
 
+exports.getToken = getToken;
+exports.list = list;
+exports.create = create;
+exports.read = read;
+exports.upload = upload;
+
+// -------------------------------------------------------------------------- //
+// -------------------------------------------------------------------------- //
+// -------------------------------------------------------------------------- //
+
 function getToken(uid, pwd, pid){
   return new Promise((resolve, reject) => {
 
@@ -100,23 +110,21 @@ function read(container, {endpoint, token}){
 // -------------------------------------------------------------------------- //
 // -------------------------------------------------------------------------- //
 
-var cc = 'beta';
-var tt;
+function upload(container, filename, {mimetype, buffer, size}, {endpoint, token}){
+  return new Promise((resolve, reject) => {
 
-getToken('52f3669377494493b17b2d804ff62f24', 'Pw8jV?M?2lSew&Fe', 'cd07aefb3a944d679e97ed0b37e39569')
-.then(function(t){
-  tt = t;
-  return create(cc, tt);
-})
-.then(function(t){
-  return read(cc, tt);
-})
-.then(function(t){
-  return list(cc, tt);
-})
-.then(function(d){
-  console.log('+-+-+-', d);
-});
+    const url = endpoint + '/' + container + '/' + filename;
+    const headers = {'x-auth-token': token, 'content_type': mimetype, 'content-length': size};
+    const o = {url, method: 'put', headers, body: buffer};
+
+    Request(o, (err, res, body) => {
+      if(err)
+        reject(err);
+      else
+        resolve(body);
+    });
+  });
+}
 
 // -------------------------------------------------------------------------- //
 // -------------------------------------------------------------------------- //
