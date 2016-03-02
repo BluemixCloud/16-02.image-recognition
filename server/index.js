@@ -46,3 +46,25 @@ app.post('/upload', uploadr.single('webcam'), function(req, res){
   });
 
 });
+
+// -------------------------------------------------------------------------- //
+
+app.all('/proxy', function(req, res){
+    var o = {
+      uri: req.query.url,
+      method: req.method,
+      json: true,
+    };
+
+    if(Object.keys(req.body).length){
+      o.body = req.body;
+    }
+
+    console.log('request to NodeRED:', o);
+    request(o, function(e, r, b){
+      console.log('response from NodeRED:', b);
+      res.send({error: e, status: r.statusCode, request: o, response: b});
+    });
+});
+
+// -------------------------------------------------------------------------- //

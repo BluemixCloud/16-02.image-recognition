@@ -14,11 +14,32 @@ angular.module('template', [])
       data = data_uri;
     });
   };
-  
+
   $scope.upload = function(){
     Webcam.upload(data, '/upload', function(code, text){
       console.log('code:', code, 'text:', text);
     });
   };
 
+  $scope.query = function(){
+    nodered('http://chyld-nodered.mybluemix.net/imgdata', 'get', null, function(res){
+      console.log('***', res);
+    });
+  };
+
 });
+
+
+// ************************************** //
+
+function nodered(url, method, data, cb){
+  $.ajax({
+    url: '/proxy?url=' + url,
+    method: method,
+    data: data,
+    dataType: 'json',
+    success: cb
+  });
+}
+
+// ************************************** //
