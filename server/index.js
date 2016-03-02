@@ -3,6 +3,7 @@ import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import multer from 'multer';
 import uuid from 'node-uuid';
+import request from 'request-promise';
 
 const storage = multer.memoryStorage();
 const uploadr = multer({storage: storage});
@@ -22,14 +23,23 @@ const os = new ObjectStorage('52f3669377494493b17b2d804ff62f24', 'Pw8jV?M?2lSew&
 
 app.post('/upload', uploadr.single('webcam'), function(req, res){
 
-  let cc = 'foodnow';
+  let cc = 'morgan';
+  let img = `webcam-${uuid.v1()}.jpg`;
+  let full = `https://dal.objectstorage.open.softlayer.com/v1/AUTH_cd07aefb3a944d679e97ed0b37e39569/${cc}/${img}`;
 
   os.create(cc)
   .then(() => {
     return os.unlock(cc)
   })
   .then(() => {
-    return os.upload(cc, `webcam-${uuid.v1()}.jpg`, req.file);
+    return os.upload(cc, img, req.file.mimetype, req.file.buffer, req.file.size);
+  })
+  .then(() => {
+    const o = {url: 'http://chyld-nodered.mybluemix.net/analyze', method: 'post', json: true, body: {full}};
+    return request(o);
+  })
+  .then((v) => {
+    console.log('response from nodered:', v);
   })
   .finally(() => {
     res.send('ok');
