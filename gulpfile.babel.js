@@ -21,8 +21,8 @@ const paths = {
 gulp.task('default', ['client-build', 'server-build', 'watch']);
 
 gulp.task('watch', () => {
-  gulp.watch([paths.client_code, paths.client_html], ['client-build']);
-  gulp.watch(paths.server_code, ['server-build']);
+  gulp.watch([paths.client_code, paths.client_html, paths.vendor_code], ['client-build']);
+  gulp.watch([paths.server_code, paths.server_json], ['server-build']);
 });
 
 // ************************************************************************** //
@@ -38,7 +38,7 @@ gulp.task('client-clean', () => {
 });
 
 gulp.task('client-babel', shell.task([
-  'webpack --progress --colors'
+  'npm run buildc'
 ]));
 
 gulp.task('client-copy-html', () => {
@@ -64,7 +64,7 @@ gulp.task('server-clean', () => {
 });
 
 gulp.task('server-babel', shell.task([
-  'npm run build'
+  'npm run builds'
 ]));
 
 gulp.task('server-copy-json', () => {

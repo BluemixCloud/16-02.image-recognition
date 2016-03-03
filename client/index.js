@@ -22,7 +22,7 @@ angular.module('template', [])
   };
 
   $scope.query = function(){
-    nodered('http://chyld-nodered.mybluemix.net/imgdata', 'get', null, function(res){
+    nodered('http://chyld-nodered.mybluemix.net/imgdata?score=0.50', 'get', null, function(res){
       console.log('***', res);
     });
   };

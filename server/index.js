@@ -68,3 +68,37 @@ app.all('/proxy', function(req, res){
 });
 
 // -------------------------------------------------------------------------- //
+// -------------------------------------------------------------------------- //
+// -------------------------------------------------------------------------- //
+
+// CREATE TABLE IN DB2
+// create table images
+// (
+//   id integer not null generated always as identity (start with 1 increment by 1),
+//   primary key (id),
+//   score double,
+//   label varchar(128),
+//   url varchar(500),
+//   created_at timestamp
+// );
+
+// INSERT SINGLE VALUE
+// msg.payload = {CREATED_AT: 'TIMESTAMP',
+//               URL: msg.payload.url,
+//               LABEL: msg.payload.scores[0].label_name,
+//               SCORE: msg.payload.scores[0].label_score};
+// return msg;
+
+// INSERT AN ARRAY OF VALUES
+// var array = msg.payload.scores.map(function(score){
+//     return {
+//         CREATED_AT: 'TIMESTAMP',
+//         URL: msg.payload.url,
+//         LABEL: score.label_name,
+//         SCORE: score.label_score
+//     };
+// });
+// msg.payload = array;
+
+// QUERY DB2
+// select * from images5 where score > ?;
