@@ -24,6 +24,10 @@
           <button ng-click="take()">Click</button>
           <button ng-click="upload()">Upload</button>
           <button ng-click="query()">Query</button>
+          <button ng-click="startRec()">Record</button>
+          <button ng-click="stopRec()">Stop</button>
+          <button ng-click="downRec()">D/L</button>
+          <ul id="recordingslist"></ul>
         </div>
       </div>
 
@@ -33,6 +37,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular.min.js"></script>
     <script src="/vendor/webcam.js"></script>
+    <script src="/vendor/recorder.js"></script>
     <script src="/index.js"></script>
   </body>
 </html>

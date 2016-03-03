@@ -20,10 +20,10 @@ app.listen(process.env.PORT, process.env.IP, () => {
 
 import ObjectStorage from 'bluemix-object-storage';
 const os = new ObjectStorage('52f3669377494493b17b2d804ff62f24', 'Pw8jV?M?2lSew&Fe', 'cd07aefb3a944d679e97ed0b37e39569');
+let cc = 'morgan';
 
 app.post('/upload', uploadr.single('webcam'), function(req, res){
 
-  let cc = 'morgan';
   let img = `webcam-${uuid.v1()}.jpg`;
   let full = `https://dal.objectstorage.open.softlayer.com/v1/AUTH_cd07aefb3a944d679e97ed0b37e39569/${cc}/${img}`;
 
@@ -46,6 +46,17 @@ app.post('/upload', uploadr.single('webcam'), function(req, res){
   });
 
 });
+
+// -------------------------------------------------------------------------- //
+
+
+app.post('/audio', uploadr.single('superfile'), function(req, res){
+  let song = `music-${uuid.v1()}.wav`;
+  os.upload(cc, song, req.file.mimetype, req.file.buffer, req.file.size).then(function(){
+    res.send('ok');
+  });
+});
+
 
 // -------------------------------------------------------------------------- //
 
