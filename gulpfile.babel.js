@@ -4,8 +4,8 @@ const shell = require('gulp-shell');
 const seq = require('run-sequence');
 
 const paths = {
-  client_code: ['client/**/*.+(js|jsx)'],
-  vendor_code: ['client/vendor/**/*.+(js|jsx)'],
+  client_code: ['client/**/*.js'],
+  vendor_code: ['vendor/**/*.js'],
   client_html: ['client/**/*.html'],
   client_dest: '.pub',
   vendor_dest: '.pub/vendor',
